@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using UnityEngine;
 
 public class PlayerController : MonoBehaviour
@@ -8,6 +9,8 @@ public class PlayerController : MonoBehaviour
     private float powerUpStrength = 15.0f;
     public float speed = 5.0f;
     public bool hasPowerup = false;
+
+    public GameObject powerupIndicator;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
@@ -20,6 +23,7 @@ public class PlayerController : MonoBehaviour
     {
         float forwardInput = Input.GetAxis("Vertical");
         playerRb.AddForce(focalPoint.transform.forward * forwardInput * speed);
+        powerupIndicator.transform.position = transform.position + new Vector3 (0, -0.5f, 0);
     }
 
     private void OnTriggerEnter(Collider other)
@@ -27,8 +31,17 @@ public class PlayerController : MonoBehaviour
         if (other.CompareTag("Powerup"))
         {
             hasPowerup = true;
+            powerupIndicator.gameObject.SetActive(true);
             Destroy(other.gameObject);
+            StartCoroutine(PowerupCountdownRoutine());
         }
+    }
+
+    IEnumerator PowerupCountdownRoutine()
+    {
+        yield return new WaitForSeconds(7f);
+        hasPowerup = false;
+        powerupIndicator.gameObject.SetActive(false);
     }
 
     private void OnCollisionEnter(Collision collision)
